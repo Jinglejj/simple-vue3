@@ -10,4 +10,8 @@ const vnode: VNode = {
     children: 'hello'
 };
 
-renderer(vnode,document.getElementById('app'))
+const container = document.getElementById('app');
+
+if (container) {
+    renderer(vnode, container);
+}
