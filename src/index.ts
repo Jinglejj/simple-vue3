@@ -1,4 +1,5 @@
 import { effect, obj } from "./observer";
+import { flushJob, jobQueue } from "./queue";
 import renderer from "./renderer";
 
 const vnode: VNode = {
@@ -19,23 +20,25 @@ effect(() => {
     if (container) {
         container.innerHTML = obj.ok ? obj.count : 'not';
     }
-},{
-    scheduler:(fn)=>{
-        console.log('scheduler');
-        fn();
+}, {
+    scheduler: (fn) => {
+        jobQueue.add(fn);
+        flushJob();
     }
 })
 
 
-
-
-const createBtn = (onClick: Function, name:string) => {
+const createBtn = (onClick: Function, name: string) => {
     const btn = document.createElement('button');
     btn.addEventListener('click', () => onClick());
     btn.innerText = name;
     document.body.appendChild(btn);
 }
-createBtn(() => obj.count++, 'change ok');
+createBtn(() => {
+    for (let i = 0; i < 100; i++) {
+        obj.count++;
+    }
+}, 'change ok');
 // createBtn(() => obj.ok = false, 'change ok');
 // createBtn(() => obj.text = Math.random().toString(), 'changeText');
 
