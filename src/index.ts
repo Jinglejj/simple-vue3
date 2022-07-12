@@ -14,10 +14,15 @@ const vnode: VNode = {
 const container = document.getElementById('app');
 
 effect(() => {
-    console.log('effect');
+    console.log(obj.count)
     const container = document.getElementById('app');
     if (container) {
-        container.innerHTML = obj.ok ? obj.text : 'not';
+        container.innerHTML = obj.ok ? obj.count : 'not';
+    }
+},{
+    scheduler:(fn)=>{
+        console.log('scheduler');
+        fn();
     }
 })
 
@@ -30,8 +35,8 @@ const createBtn = (onClick: Function, name:string) => {
     btn.innerText = name;
     document.body.appendChild(btn);
 }
+createBtn(() => obj.count++, 'change ok');
+// createBtn(() => obj.ok = false, 'change ok');
+// createBtn(() => obj.text = Math.random().toString(), 'changeText');
 
-createBtn(() => obj.ok = false, 'change ok');
-createBtn(() => obj.text = Math.random().toString(), 'changeText');
-
-createBtn(()=>console.log(obj),'console obj')
+// createBtn(()=>console.log(obj),'console obj')

@@ -1,13 +1,17 @@
 type Key = string | symbol;
-type Bucket = WeakMap<any, Map<Key, Set<Function>>>;
+type EffectOptions = {
+    scheduler?: (fn: Function) => void
+}
+type Effect = Function & { deps: Set<Function>[], options: EffectOptions };
+type Bucket = WeakMap<any, Map<Key, Set<Effect>>>;
 const bucket: Bucket = new WeakMap();
 
 const data: Record<Key, any> = {
+    count: 1,
     ok: true,
     text: 'Hello Vue'
 }
 
-type Effect = Function & { deps: Set<Function>[] };
 
 const cleanup = (effectFn: Effect) => {
     for (let i = 0; i < effectFn.deps.length; i++) {
@@ -22,7 +26,8 @@ let activeEffect: Effect;
 
 let effectStack: Effect[] = [];
 
-export const effect = (fn: Function) => {
+export const effect = (fn: Function, options: EffectOptions = {}) => {
+    const { scheduler } = options;
     const effectFn: Effect = () => {
         cleanup(effectFn);
         activeEffect = effectFn;
@@ -31,13 +36,10 @@ export const effect = (fn: Function) => {
         effectStack.pop();
         activeEffect = effectStack[effectStack.length - 1];
     }
+    effectFn.options = options;
     effectFn.deps = [];
     effectFn();
 }
-
-setTimeout(() => {
-    console.log(activeEffect.deps);
-}, 3000)
 
 const track = (target: Record<Key, any>, key: Key) => {
     if (!activeEffect) {
@@ -60,13 +62,19 @@ const trigger = (target: Record<Key, any>, key: Key) => {
     if (!depsMap) return true;
     const effects = depsMap.get(key);
     // TODO:
-    const effectToRun = new Set<Function>();
-    effectToRun && effectToRun.forEach(effectFn => {
+    const effectToRun = new Set<Effect>();
+    effects && effects.forEach(effectFn => {
         if (effectFn !== activeEffect) {
             effectToRun.add(effectFn);
         }
     });
-    effectToRun.forEach(effectFn => effectFn())
+    effectToRun.forEach(effectFn => {
+        if (effectFn.options?.scheduler) {
+            effectFn.options.scheduler(effectFn);
+        } else {
+            effectFn();
+        }
+    })
 }
 
 export const obj = new Proxy(data, {
