@@ -20,19 +20,24 @@ const cleanup = (effectFn: Effect) => {
 
 let activeEffect: Effect;
 
+let effectStack: Effect[] = [];
+
 export const effect = (fn: Function) => {
     const effectFn: Effect = () => {
         cleanup(effectFn);
         activeEffect = effectFn;
+        effectStack.push(effectFn);
         fn();
+        effectStack.pop();
+        activeEffect = effectStack[effectStack.length - 1];
     }
     effectFn.deps = [];
     effectFn();
 }
 
-setTimeout(()=>{
+setTimeout(() => {
     console.log(activeEffect.deps);
-},3000)
+}, 3000)
 
 const track = (target: Record<Key, any>, key: Key) => {
     if (!activeEffect) {
@@ -55,7 +60,7 @@ const trigger = (target: Record<Key, any>, key: Key) => {
     if (!depsMap) return true;
     const effects = depsMap.get(key);
     // TODO:
-    const effectToRun=new Set(effects);
+    const effectToRun = new Set(effects);
     effectToRun && effectToRun.forEach(fn => fn());
 }
 

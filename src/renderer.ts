@@ -24,7 +24,7 @@ function renderer(vnode: VNode, container: HTMLElement) {
     if (typeof vnode.tag === 'string') {
         mountElement(vnode, container);
     } else if (typeof vnode === 'function') {
-        //mountFunction
+        mountComponent(vnode,container);
     }
 }
 
