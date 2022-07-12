@@ -60,8 +60,13 @@ const trigger = (target: Record<Key, any>, key: Key) => {
     if (!depsMap) return true;
     const effects = depsMap.get(key);
     // TODO:
-    const effectToRun = new Set(effects);
-    effectToRun && effectToRun.forEach(fn => fn());
+    const effectToRun = new Set<Function>();
+    effectToRun && effectToRun.forEach(effectFn => {
+        if (effectFn !== activeEffect) {
+            effectToRun.add(effectFn);
+        }
+    });
+    effectToRun.forEach(effectFn => effectFn())
 }
 
 export const obj = new Proxy(data, {
