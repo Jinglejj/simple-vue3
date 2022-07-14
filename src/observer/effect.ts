@@ -17,7 +17,7 @@ export let activeEffect: Effect;
 
 let effectStack: Effect[] = [];
 
-export default (fn: Function, options: EffectOptions = {}) => {
+const effect = (fn: Function, options: EffectOptions = {}) => {
     const effectFn: Effect = () => {
         cleanup(effectFn);
         activeEffect = effectFn;
@@ -34,3 +34,5 @@ export default (fn: Function, options: EffectOptions = {}) => {
     }
     return effectFn;
 }
+
+export default effect;

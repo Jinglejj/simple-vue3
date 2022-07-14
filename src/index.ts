@@ -1,6 +1,7 @@
-import {  obj } from "./observer";
+import { obj } from "./observer";
 import computed from "./observer/computed";
 import effect from "./observer/effect";
+import watch from "./observer/watch";
 import { flushJob, jobQueue } from "./queue";
 import renderer from "./renderer";
 
@@ -16,18 +17,17 @@ const vnode: VNode = {
 
 const container = document.getElementById('app');
 
-// effect(() => {
-//     console.log(obj.count)
-//     const container = document.getElementById('app');
-//     if (container) {
-//         container.innerHTML = obj.ok ? obj.count : 'not';
-//     }
-// }, {
-//     scheduler: (fn) => {
-//         jobQueue.add(fn);
-//         flushJob();
-//     }
-// })
+effect(() => {
+    const container = document.getElementById('app');
+    if (container) {
+        container.innerHTML = obj.ok ? obj.count : 'not';
+    }
+}, {
+    scheduler: (fn) => {
+        jobQueue.add(fn);
+        flushJob();
+    }
+})
 
 
 const createBtn = (onClick: Function, name: string) => {
@@ -37,19 +37,19 @@ const createBtn = (onClick: Function, name: string) => {
     document.body.appendChild(btn);
 }
 createBtn(() => {
-    for (let i = 0; i < 100; i++) {
-        obj.count++;
-    }
-}, 'change ok');
+    obj.count++;
+}, 'add count');
 // createBtn(() => obj.ok = false, 'change ok');
 // createBtn(() => obj.text = Math.random().toString(), 'changeText');
 
 // createBtn(()=>console.log(obj),'console obj')
 
 
-const res=computed(()=>obj.foo+obj.bar);
+// const res=computed(()=>obj.foo+obj.bar);
 
-effect(()=>{
-    console.log(res.value);
-})
-obj.foo++;
+// effect(()=>{
+//     console.log(res.value);
+// })
+// obj.foo++;
+
+watch(() => obj.count, (oldVal, newVal) => console.log(oldVal, newVal));

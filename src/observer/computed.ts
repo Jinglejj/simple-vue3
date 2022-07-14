@@ -1,7 +1,7 @@
-import {  track, trigger } from ".";
+import { track, trigger } from ".";
 import effect from "./effect";
 
-export default  (getter: Function) => {
+const computed = (getter: Function) => {
     let value: any;
     let dirty = true;
     const effectFn = effect(getter, {
@@ -25,3 +25,6 @@ export default  (getter: Function) => {
     }
     return obj;
 }
+
+
+export default computed;
