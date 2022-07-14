@@ -1,4 +1,5 @@
-import { effect, obj } from "./observer";
+import {  effect, obj } from "./observer";
+import computed from "./observer/computed";
 import { flushJob, jobQueue } from "./queue";
 import renderer from "./renderer";
 
@@ -14,18 +15,18 @@ const vnode: VNode = {
 
 const container = document.getElementById('app');
 
-effect(() => {
-    console.log(obj.count)
-    const container = document.getElementById('app');
-    if (container) {
-        container.innerHTML = obj.ok ? obj.count : 'not';
-    }
-}, {
-    scheduler: (fn) => {
-        jobQueue.add(fn);
-        flushJob();
-    }
-})
+// effect(() => {
+//     console.log(obj.count)
+//     const container = document.getElementById('app');
+//     if (container) {
+//         container.innerHTML = obj.ok ? obj.count : 'not';
+//     }
+// }, {
+//     scheduler: (fn) => {
+//         jobQueue.add(fn);
+//         flushJob();
+//     }
+// })
 
 
 const createBtn = (onClick: Function, name: string) => {
@@ -43,3 +44,11 @@ createBtn(() => {
 // createBtn(() => obj.text = Math.random().toString(), 'changeText');
 
 // createBtn(()=>console.log(obj),'console obj')
+
+
+const res=computed(()=>obj.foo+obj.bar);
+
+effect(()=>{
+    console.log(res.value);
+})
+obj.foo++;

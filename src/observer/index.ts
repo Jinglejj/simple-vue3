@@ -1,6 +1,7 @@
 type Key = string | symbol;
 type EffectOptions = {
-    scheduler?: (fn: Function) => void
+    scheduler?: (fn: Function) => void;
+    lazy?: boolean;
 }
 type Effect = Function & { deps: Set<Function>[], options: EffectOptions };
 type Bucket = WeakMap<any, Map<Key, Set<Effect>>>;
@@ -8,6 +9,8 @@ const bucket: Bucket = new WeakMap();
 
 const data: Record<Key, any> = {
     count: 1,
+    foo: 1,
+    bar: 2,
     ok: true,
     text: 'Hello Vue'
 }
@@ -32,16 +35,21 @@ export const effect = (fn: Function, options: EffectOptions = {}) => {
         cleanup(effectFn);
         activeEffect = effectFn;
         effectStack.push(effectFn);
-        fn();
+        const res = fn();
         effectStack.pop();
         activeEffect = effectStack[effectStack.length - 1];
+        return res;
     }
     effectFn.options = options;
     effectFn.deps = [];
-    effectFn();
+    if (!options.lazy) {
+        effectFn();
+    }
+    return effectFn;
 }
 
-const track = (target: Record<Key, any>, key: Key) => {
+
+export const track = (target: Record<Key, any>, key: Key) => {
     if (!activeEffect) {
         return target[key];
     }
@@ -57,7 +65,7 @@ const track = (target: Record<Key, any>, key: Key) => {
     activeEffect.deps.push(deps);
 }
 
-const trigger = (target: Record<Key, any>, key: Key) => {
+export const trigger = (target: Record<Key, any>, key: Key) => {
     const depsMap = bucket.get(target);
     if (!depsMap) return true;
     const effects = depsMap.get(key);
