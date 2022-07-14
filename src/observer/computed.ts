@@ -1,4 +1,5 @@
-import { effect, track, trigger } from ".";
+import {  track, trigger } from ".";
+import effect from "./effect";
 
 export default  (getter: Function) => {
     let value: any;

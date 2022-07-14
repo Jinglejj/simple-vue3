@@ -1,5 +1,6 @@
-import {  effect, obj } from "./observer";
+import {  obj } from "./observer";
 import computed from "./observer/computed";
+import effect from "./observer/effect";
 import { flushJob, jobQueue } from "./queue";
 import renderer from "./renderer";
 

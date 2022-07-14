@@ -1,10 +1,6 @@
+import { activeEffect } from "./effect";
+
 type Key = string | symbol;
-type EffectOptions = {
-    scheduler?: (fn: Function) => void;
-    lazy?: boolean;
-}
-type Effect = Function & { deps: Set<Function>[], options: EffectOptions };
-type Bucket = WeakMap<any, Map<Key, Set<Effect>>>;
 const bucket: Bucket = new WeakMap();
 
 const data: Record<Key, any> = {
@@ -15,38 +11,6 @@ const data: Record<Key, any> = {
     text: 'Hello Vue'
 }
 
-
-const cleanup = (effectFn: Effect) => {
-    for (let i = 0; i < effectFn.deps.length; i++) {
-        const deps = effectFn.deps[i];
-        deps.delete(effectFn);
-    }
-    effectFn.deps.length = 0;
-}
-
-
-let activeEffect: Effect;
-
-let effectStack: Effect[] = [];
-
-export const effect = (fn: Function, options: EffectOptions = {}) => {
-    const { scheduler } = options;
-    const effectFn: Effect = () => {
-        cleanup(effectFn);
-        activeEffect = effectFn;
-        effectStack.push(effectFn);
-        const res = fn();
-        effectStack.pop();
-        activeEffect = effectStack[effectStack.length - 1];
-        return res;
-    }
-    effectFn.options = options;
-    effectFn.deps = [];
-    if (!options.lazy) {
-        effectFn();
-    }
-    return effectFn;
-}
 
 
 export const track = (target: Record<Key, any>, key: Key) => {
