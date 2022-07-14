@@ -52,4 +52,4 @@ createBtn(() => {
 // })
 // obj.foo++;
 
-watch(() => obj.count, (oldVal, newVal) => console.log(oldVal, newVal));
+watch(() => obj.count, (oldVal, newVal) => console.log(oldVal, newVal, 'change'), { immdiate: true });

@@ -17,7 +17,8 @@ const traverse = (value: any, seen = new Set()) => {
     return value;
 }
 
-const watch = (source: any, cb: (oldValue: any, newValue: any) => void) => {
+const watch = (source: any, cb: (oldValue: any, newValue: any) => void, options?: WatchOptions) => {
+    const { immdiate } = options ?? {};
     let getter: Function;
 
     if (isFunction(source)) {
@@ -27,15 +28,24 @@ const watch = (source: any, cb: (oldValue: any, newValue: any) => void) => {
     }
 
     let oldValue: any, newValue: any;
+
+    const job = () => {
+        newValue = effectFn();
+        cb(oldValue, newValue);
+        oldValue = newValue;
+    }
+
     const effectFn = effect(() => getter(), {
         lazy: true,
-        scheduler() {
-            newValue = effectFn();
-            cb(oldValue, newValue);
-            oldValue = newValue;
-        }
+        scheduler: job
     })
-    oldValue = effectFn();
+
+
+    if (immdiate) {
+        job();
+    } else {
+        oldValue = effectFn();
+    }
 }
 
 export default watch;
