@@ -6,7 +6,9 @@ const bucket: Bucket = new WeakMap();
 const data: Record<Key, any> = {
     count: 1,
     foo: 1,
-    bar: 2,
+    get bar() {
+        return this.foo;
+    },
     ok: true,
     text: 'Hello Vue'
 }
@@ -50,9 +52,9 @@ export const trigger = (target: Record<Key, any>, key: Key) => {
 }
 
 export const obj = new Proxy(data, {
-    get(target, key) {
+    get(target, key, receiver) {
         track(target, key);
-        return target[key];
+        return Reflect.get(target, key, receiver);
     },
     set(target, key, newValue) {
         target[key] = newValue;

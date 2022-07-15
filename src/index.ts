@@ -20,7 +20,7 @@ const container = document.getElementById('app');
 effect(() => {
     const container = document.getElementById('app');
     if (container) {
-        container.innerHTML = obj.ok ? obj.count : 'not';
+        container.innerHTML = obj.foo;
     }
 }, {
     scheduler: (fn) => {
@@ -30,6 +30,8 @@ effect(() => {
 })
 
 
+effect(()=>{console.log(obj.bar)})
+
 const createBtn = (onClick: Function, name: string) => {
     const btn = document.createElement('button');
     btn.addEventListener('click', () => onClick());
@@ -37,7 +39,7 @@ const createBtn = (onClick: Function, name: string) => {
     document.body.appendChild(btn);
 }
 createBtn(() => {
-    obj.count++;
+    obj.foo++;
 }, 'add count');
 // createBtn(() => obj.ok = false, 'change ok');
 // createBtn(() => obj.text = Math.random().toString(), 'changeText');
@@ -52,4 +54,4 @@ createBtn(() => {
 // })
 // obj.foo++;
 
-watch(() => obj.count, (oldVal, newVal) => console.log(oldVal, newVal, 'change'), { immdiate: true });
+// watch(() => obj.count, (oldVal, newVal) => console.log(oldVal, newVal, 'change'), { immdiate: true });
