@@ -14,5 +14,6 @@ type EffectOptions = {
 type Effect = Function & { deps: Set<Function>[], options: EffectOptions };
 
 type WatchOptions = {
-    immdiate?: boolean
+    immdiate?: boolean;
+    flush?: 'pre' | 'post' | 'sync';
 }

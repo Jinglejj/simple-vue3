@@ -17,7 +17,9 @@ const traverse = (value: any, seen = new Set()) => {
     return value;
 }
 
-const watch = (source: any, cb: (oldValue: any, newValue: any) => void, options?: WatchOptions) => {
+type Callback = (oldValue: any, newValue: any, onInvalidate?: (fn: Function) => void) => void
+
+const watch = (source: any, cb: Callback, options?: WatchOptions) => {
     const { immdiate } = options ?? {};
     let getter: Function;
 
@@ -28,16 +30,32 @@ const watch = (source: any, cb: (oldValue: any, newValue: any) => void, options?
     }
 
     let oldValue: any, newValue: any;
+    let cleanup: Function;
+
+
+    function onInvalidate(fn: Function) {
+        cleanup = fn;
+    }
 
     const job = () => {
         newValue = effectFn();
-        cb(oldValue, newValue);
+        if (cleanup) {
+            cleanup()
+        }
+        cb(oldValue, newValue, onInvalidate);
         oldValue = newValue;
     }
 
     const effectFn = effect(() => getter(), {
         lazy: true,
-        scheduler: job
+        scheduler: () => {
+            if (options?.flush === 'post') {
+                const p = Promise.resolve();
+                p.then(job)
+            } else {
+                job();
+            }
+        }
     })
 
 
