@@ -1,7 +1,7 @@
-import computed from "./observer/computed";
-import effect from "./observer/effect";
-import reactive from "./observer/reactive";
-import watch from "./observer/watch";
+import computed from "./reactive/computed";
+import effect from "./reactive/effect";
+import reactive from "./reactive";
+import watch from "./reactive/watch";
 import { flushJob, jobQueue } from "./queue";
 import renderer from "./renderer";
 
