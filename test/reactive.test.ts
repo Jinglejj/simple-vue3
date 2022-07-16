@@ -1,5 +1,6 @@
 import effect from '@/reactive/effect';
 import reactive, { shallowReactive } from '@/reactive';
+import { flushJob, jobQueue } from '@/queue';
 
 
 
@@ -16,6 +17,26 @@ describe('reactive test', () => {
         obj.count++;
         expect(fn.mock.calls.length === 2);
     });
+
+    test('flush queue', () => {
+        const data = {
+            count: 1,
+        }
+        let obj = reactive(data);
+        const fn = jest.fn(() => console.log(obj.count));
+        effect(fn, {
+            scheduler: (fn) => {
+                jobQueue.add(fn);
+                flushJob();
+            }
+        });
+        for (let i = 0; i < 1000; i++) {
+            obj.count++;
+        }
+        expect(obj.count).toEqual(1001);
+        // 放入微任务队列
+        Promise.resolve().then(() => expect(fn.mock.calls.length).toEqual(2))
+    })
 
     test('test lazy', () => {
         const fn = jest.fn(() => { });
