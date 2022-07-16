@@ -4,15 +4,38 @@ import { ITERATE_KEY, track, trigger, TriggerType } from "./deps";
 
 type Object = object & { [key: string | symbol]: any };
 
+const reactive = <T extends Object>(obj: T) => {
+    return createReactive(obj)
+}
 
-const createReactive = <T extends Object>(obj: T, isShallow = false): T => {
+export const shallowReactive = <T extends Object>(obj: T) => {
+    return createReactive(obj, true);
+}
+
+export const readonly = <T extends Object>(obj: T) => {
+    return createReactive(obj, false, true);
+}
+
+export const shallowReadonly = <T extends Object>(obj: T) => {
+    return createReactive(obj, true, true);
+}
+
+export default reactive;
+
+
+function createReactive<T extends Object>(obj: T, isShallow = false, isReadOnly = false): T {
     return new Proxy(obj, {
         get(target, key, receiver) {
             // 通过raw获取原始数据
             if (key === 'raw') {
                 return target;
             }
-            track(target, key);
+
+            // 只读对象不需要响应式
+            if (!isReadOnly) {
+                track(target, key);
+            }
+
             const res = Reflect.get(target, key, receiver);
 
             // 浅响应
@@ -22,12 +45,18 @@ const createReactive = <T extends Object>(obj: T, isShallow = false): T => {
 
             // 判断属性是否为对象，如果为对象的话递归将该属性设置为响应式
             if (!isNull(res) && isObject(res)) {
-                return createReactive(res);
+                return isReadOnly ? readonly(res) : reactive(res);
             }
 
             return res;
         },
         set(target, key, newValue, receiver) {
+
+            if (isReadOnly) {
+                console.warn(`【${key.toString()}} is readonly】`);
+                return true;
+            }
+
             const oldValue = target[key];
             //判断是新增属性还是修改属性值
             const type = hasOwnProperty(target, key) ? TriggerType.SET : TriggerType.ADD;
@@ -49,6 +78,12 @@ const createReactive = <T extends Object>(obj: T, isShallow = false): T => {
             return Reflect.ownKeys(target);
         },
         deleteProperty(target, key) {
+
+            if (isReadOnly) {
+                console.warn(`【${key.toString()}} is readonly】`);
+                return true;
+            }
+
             const hasKey = hasOwnProperty(target, key);
             const res = Reflect.deleteProperty(target, key);
             if (res && hasKey) {
@@ -58,13 +93,3 @@ const createReactive = <T extends Object>(obj: T, isShallow = false): T => {
         }
     });
 }
-
-const reactive = <T extends Object>(obj: T) => {
-    return createReactive(obj)
-}
-
-export const shallowReactive = <T extends Object>(obj: T) => {
-    return createReactive(obj, true);
-}
-
-export default reactive;

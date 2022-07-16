@@ -1,5 +1,5 @@
 import effect from '@/reactive/effect';
-import reactive, { shallowReactive } from '@/reactive';
+import reactive, { readonly, shallowReactive } from '@/reactive';
 import { flushJob, jobQueue } from '@/queue';
 
 
@@ -68,6 +68,7 @@ describe('reactive test', () => {
         obj.foo.bar++;
         expect(fn.mock.calls.length).toEqual(2);
     })
+
     test('shallow reactive', () => {
         const data = {
             foo: {
@@ -79,5 +80,12 @@ describe('reactive test', () => {
         effect(fn);
         obj.foo.bar++;
         expect(fn.mock.calls.length).toEqual(1);
+    })
+
+    test('readonly', () => {
+        const data = { foo: 1 };
+        const obj = readonly(data);
+        obj.foo++;
+        expect(obj.foo).toEqual(1);
     })
 })
