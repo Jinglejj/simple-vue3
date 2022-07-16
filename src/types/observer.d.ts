@@ -1,3 +1,4 @@
+type Key = string | symbol;
 type Bucket = WeakMap<any, Map<Key, Set<Effect>>>;
 
 type EffectOptions = {

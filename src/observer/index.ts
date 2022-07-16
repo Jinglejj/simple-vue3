@@ -1,24 +1,14 @@
-import { hasOwnProperty } from "@/util";
+import { equal, hasOwnProperty } from "@/util";
 import { activeEffect } from "./effect";
 
-type Key = string | symbol;
-enum TriggerType {
+export enum TriggerType {
     SET = 'SET',
     ADD = 'ADD',
     DELETE = 'DELETE'
 }
 const bucket: Bucket = new WeakMap();
 
-const ITERATE_KEY = Symbol();
-
-const data: Record<Key, any> = {
-    count: 1,
-    foo: 2,
-    bar: 3,
-    ok: true,
-    text: 'Hello Vue'
-}
-
+export const ITERATE_KEY = Symbol();
 
 
 export const track = (target: Record<Key, any>, key: Key) => {
@@ -70,31 +60,3 @@ export const trigger = (target: Record<Key, any>, key: Key, type: TriggerType) =
         }
     })
 }
-
-export const obj = new Proxy(data, {
-    get(target, key, receiver) {
-        track(target, key);
-        return Reflect.get(target, key, receiver);
-    },
-    set(target, key, newValue, receiver) {
-        //判断是新增属性还是修改属性值
-        const type = hasOwnProperty(target, key) ? TriggerType.SET : TriggerType.ADD;
-
-        const res = Reflect.set(target, key, newValue, receiver);
-        trigger(target, key, type);
-        return res;
-    },
-    // 拦截 for...in
-    ownKeys(target) {
-        track(target, ITERATE_KEY);
-        return Reflect.ownKeys(target);
-    },
-    deleteProperty(target, key) {
-        const hasKey = hasOwnProperty(target, key);
-        const res = Reflect.deleteProperty(target, key);
-        if (res && hasKey) {
-            trigger(target, key, TriggerType.DELETE);
-        }
-        return res;
-    }
-})

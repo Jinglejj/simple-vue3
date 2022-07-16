@@ -1,6 +1,6 @@
-import { obj } from "./observer";
 import computed from "./observer/computed";
 import effect from "./observer/effect";
+import reactive from "./observer/reactive";
 import watch from "./observer/watch";
 import { flushJob, jobQueue } from "./queue";
 import renderer from "./renderer";
@@ -28,9 +28,17 @@ const vnode: VNode = {
 //     }
 // })
 
+const data: Record<Key, any> = {
+    count: 1,
+    foo: 2,
+    bar: 3,
+    ok: true,
+    text: 'Hello Vue'
+}
+const obj = reactive(data);
 
-effect(()=>{
-    for(let key in obj){
+effect(() => {
+    for (let key in obj) {
         console.log(obj[key]);
     }
 })
@@ -43,7 +51,7 @@ const createBtn = (onClick: Function, name: string) => {
 }
 
 createBtn(() => {
-    obj.abcd='add'
+    obj.abcd = 'add'
 }, 'add');
 
 createBtn(() => {
