@@ -24,43 +24,53 @@ import reactive from "./reactive";
 //     }
 // })
 
-const data = {
-    count: 1,
-    foo: 2,
-    bar: 3,
-    ok: true,
-    text: 'Hello Vue'
-}
-const obj = reactive(data);
 
-effect(() => {
-    for (const key in obj) {
-       console.log(obj[key]);
-    }
-    const container = document.getElementById('app');
-    if (container) {
-        container.innerHTML = JSON.stringify(obj);
-    }
-})
+// type Data = {
+//     count?: number;
+//     foo?: number;
+//     bar?: number;
+//     ok?: boolean;
+//     text?: string;
+// }
 
-const createBtn = (onClick: Fn, name: string) => {
-    const btn = document.createElement('button');
-    btn.addEventListener('click', () => onClick());
-    btn.innerText = name;
-    document.body.appendChild(btn);
-}
+// const data: Data = {
+//     count: 1,
+//     foo: 2,
+//     bar: 3,
+//     ok: true,
+//     text: 'Hello Vue'
+// };
 
-createBtn(() => {
-    obj.abcd = 'add'
-}, 'add');
+// const obj = reactive(data);
 
-createBtn(() => {
-    obj.foo++
-}, 'foo++');
+// effect(() => {
+//     for (const key in obj) {
+//         console.log(obj[key]);
+//     }
+//     const container = document.getElementById('app');
+//     if (container) {
+//         container.innerHTML = JSON.stringify(obj);
+//     }
+// })
 
-createBtn(() => {
-    delete obj.foo;
-}, 'delete foo')
+// const createBtn = (onClick: Fn, name: string) => {
+//     const btn = document.createElement('button');
+//     btn.addEventListener('click', () => onClick());
+//     btn.innerText = name;
+//     document.body.appendChild(btn);
+// }
+
+// createBtn(() => {
+//     obj.abcd = 'add'
+// }, 'add');
+
+// createBtn(() => {
+//     obj.foo++
+// }, 'foo++');
+
+// createBtn(() => {
+//     delete obj.foo;
+// }, 'delete foo')
 // createBtn(() => {
 //     obj.foo++;
 // }, 'add count');
