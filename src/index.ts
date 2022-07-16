@@ -49,6 +49,10 @@ createBtn(() => {
 createBtn(() => {
     obj.foo++
 }, 'foo++');
+
+createBtn(() => {
+    delete obj.foo;
+}, 'delete foo')
 // createBtn(() => {
 //     obj.foo++;
 // }, 'add count');

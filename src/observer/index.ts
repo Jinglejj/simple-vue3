@@ -5,6 +5,7 @@ type Key = string | symbol;
 enum TriggerType {
     SET = 'SET',
     ADD = 'ADD',
+    DELETE = 'DELETE'
 }
 const bucket: Bucket = new WeakMap();
 
@@ -49,13 +50,13 @@ export const trigger = (target: Record<Key, any>, key: Key, type: TriggerType) =
         }
     });
 
-    console.log(type,key)
-    if (type === TriggerType.ADD) {
+    console.log(type, key)
+    if (type === TriggerType.ADD || type === TriggerType.DELETE) {
         // 添加属性时，执行与 ITERATE_KEY 相关联的副作用函数。
         const iterateEffect = depsMap.get(ITERATE_KEY);
         iterateEffect?.forEach(effectFn => {
             if (effectFn !== activeEffect) {
-               effectToRun.add(effectFn);
+                effectToRun.add(effectFn);
             }
         })
     }
@@ -87,5 +88,13 @@ export const obj = new Proxy(data, {
     ownKeys(target) {
         track(target, ITERATE_KEY);
         return Reflect.ownKeys(target);
+    },
+    deleteProperty(target, key) {
+        const hasKey = hasOwnProperty(target, key);
+        const res = Reflect.deleteProperty(target, key);
+        if (res && hasKey) {
+            trigger(target, key, TriggerType.DELETE);
+        }
+        return res;
     }
 })
