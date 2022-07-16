@@ -15,22 +15,25 @@ const vnode: VNode = {
     children: 'hello'
 };
 
-const container = document.getElementById('app');
 
-effect(() => {
-    const container = document.getElementById('app');
-    if (container) {
-        container.innerHTML = obj.foo;
-    }
-}, {
-    scheduler: (fn) => {
-        jobQueue.add(fn);
-        flushJob();
+// effect(() => {
+//     const container = document.getElementById('app');
+//     if (container) {
+//         container.innerHTML = obj.foo;
+//     }
+// }, {
+//     scheduler: (fn) => {
+//         jobQueue.add(fn);
+//         flushJob();
+//     }
+// })
+
+
+effect(()=>{
+    for(let key in obj){
+        console.log(obj[key]);
     }
 })
-
-
-effect(()=>{console.log(obj.bar)})
 
 const createBtn = (onClick: Function, name: string) => {
     const btn = document.createElement('button');
@@ -38,9 +41,17 @@ const createBtn = (onClick: Function, name: string) => {
     btn.innerText = name;
     document.body.appendChild(btn);
 }
+
 createBtn(() => {
-    obj.foo++;
-}, 'add count');
+    obj.abcd='add'
+}, 'add');
+
+createBtn(() => {
+    obj.foo++
+}, 'foo++');
+// createBtn(() => {
+//     obj.foo++;
+// }, 'add count');
 // createBtn(() => obj.ok = false, 'change ok');
 // createBtn(() => obj.text = Math.random().toString(), 'changeText');
 
