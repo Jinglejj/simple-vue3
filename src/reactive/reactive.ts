@@ -1,20 +1,26 @@
-import { equal, hasOwnProperty } from "@/util";
+import { equal, hasOwnProperty, isNull, isObject } from "@/util";
 import { ITERATE_KEY, track, trigger, TriggerType } from ".";
 
 
 type Object = object & { [key: string | symbol]: any };
 
 
-const reactive = <T extends Object>(obj: T) => {
+const reactive = <T extends Object>(obj: T): T => {
     return new Proxy(obj, {
         get(target, key, receiver) {
             // 通过raw获取原始数据
             if (key === 'raw') {
                 return target;
             }
-
             track(target, key);
-            return Reflect.get(target, key, receiver);
+            const res = Reflect.get(target, key, receiver);
+
+            // 判断属性是否为对象，如果为对象的话递归将该属性设置为响应式
+            if (!isNull(res) && isObject(res)) {
+                return reactive(res);
+            }
+
+            return res;
         },
         set(target, key, newValue, receiver) {
             const oldValue = target[key];
@@ -30,9 +36,6 @@ const reactive = <T extends Object>(obj: T) => {
                     trigger(target, key, type);
                 }
             }
-
-
-
             return res;
         },
         // 拦截 for...in

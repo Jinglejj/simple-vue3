@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
+    "test:dev":"jest --watch",
     "test": "jest"
   },
   "devDependencies": {

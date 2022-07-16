@@ -34,4 +34,17 @@ describe('reactive test', () => {
         child.bar = 2;
         expect(fn.mock.calls.length).toEqual(2);
     })
+
+    test('deep reactive', () => {
+        const data = {
+            foo: {
+                bar: 1
+            }
+        }
+        const obj = reactive(data);
+        const fn = jest.fn(() => console.log(obj.foo.bar));
+        effect(fn);
+        obj.foo.bar++;
+        expect(fn.mock.calls.length).toEqual(2);
+    })
 })
