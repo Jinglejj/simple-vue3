@@ -5,7 +5,7 @@ import { ITERATE_KEY, track, trigger, TriggerType } from ".";
 type Object = object & { [key: string | symbol]: any };
 
 
-const reactive = <T extends Object>(obj: T): T => {
+const createReactive = <T extends Object>(obj: T, isShallow = false): T => {
     return new Proxy(obj, {
         get(target, key, receiver) {
             // 通过raw获取原始数据
@@ -15,9 +15,14 @@ const reactive = <T extends Object>(obj: T): T => {
             track(target, key);
             const res = Reflect.get(target, key, receiver);
 
+            // 浅响应
+            if (isShallow) {
+                return res;
+            }
+
             // 判断属性是否为对象，如果为对象的话递归将该属性设置为响应式
             if (!isNull(res) && isObject(res)) {
-                return reactive(res);
+                return createReactive(res);
             }
 
             return res;
@@ -52,6 +57,14 @@ const reactive = <T extends Object>(obj: T): T => {
             return res;
         }
     });
+}
+
+const reactive = <T extends Object>(obj: T) => {
+    return createReactive(obj)
+}
+
+export const shallowReactive = <T extends Object>(obj: T) => {
+    return createReactive(obj, true);
 }
 
 export default reactive;

@@ -1,5 +1,5 @@
 import effect from '@/reactive/effect';
-import reactive from '@/reactive';
+import reactive, { shallowReactive } from '@/reactive';
 
 
 
@@ -46,5 +46,17 @@ describe('reactive test', () => {
         effect(fn);
         obj.foo.bar++;
         expect(fn.mock.calls.length).toEqual(2);
+    })
+    test('shallow reactive', () => {
+        const data = {
+            foo: {
+                bar: 1
+            }
+        }
+        const obj = shallowReactive(data);
+        const fn = jest.fn(() => console.log(obj.foo.bar));
+        effect(fn);
+        obj.foo.bar++;
+        expect(fn.mock.calls.length).toEqual(1);
     })
 })

@@ -1,5 +1,5 @@
 import { activeEffect } from "./effect";
-import reactive from './reactive';
+import reactive, { shallowReactive } from './reactive';
 
 export enum TriggerType {
     SET = 'SET',
@@ -62,3 +62,5 @@ export const trigger = (target: Record<Key, any>, key: Key, type: TriggerType) =
 }
 
 export default reactive;
+
+export { shallowReactive } from './reactive';
