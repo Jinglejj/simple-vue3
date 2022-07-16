@@ -12,21 +12,21 @@ const traverse = (value: Obj, seen = new Set<object>()) => {
     }
     seen.add(value);
     for (const key in value) {
-        traverse(value[key], seen);
+        traverse(value[key] as Obj, seen);
     }
     return value;
 }
 
 type Callback = (oldValue: unknown, newValue: unknown, onInvalidate?: (fn: Fn) => void) => void;
 
-const watch = (source: Fn & unknown, cb: Callback, options?: WatchOptions) => {
+const watch = (source: Fn | Obj, cb: Callback, options?: WatchOptions) => {
     const { immdiate } = options ?? {};
     let getter: Fn;
 
     if (isFunction(source)) {
-        getter = source;
+        getter = source as Fn;
     } else {
-        getter = () => traverse(source);
+        getter = () => traverse(source as Obj);
     }
 
     let oldValue: unknown, newValue: unknown;

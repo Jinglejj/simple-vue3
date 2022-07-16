@@ -1,5 +1,5 @@
 type Key = string | symbol;
 
-type Obj = Record<Key, any>;
+type Obj = { [key: Key]: unknown };
 
-type Fn = (...args: unknown[]) => any;
+type Fn = (...args: unknown[]) => unknown;

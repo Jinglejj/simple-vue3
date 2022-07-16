@@ -1,19 +1,15 @@
-import computed from "./reactive/computed";
 import effect from "./reactive/effect";
 import reactive from "./reactive";
-import watch from "./reactive/watch";
-import { flushJob, jobQueue } from "./queue";
-import renderer from "./renderer";
 
-const vnode: VNode = {
-    tag: 'div',
-    props: {
-        onClick: () => {
-            alert('hello')
-        }
-    },
-    children: 'hello'
-};
+// const vnode: VNode = {
+//     tag: 'div',
+//     props: {
+//         onClick: () => {
+//             alert('hello')
+//         }
+//     },
+//     children: 'hello'
+// };
 
 
 // effect(() => {
@@ -28,7 +24,7 @@ const vnode: VNode = {
 //     }
 // })
 
-const data: Record<Key, any> = {
+const data = {
     count: 1,
     foo: 2,
     bar: 3,
@@ -39,7 +35,7 @@ const obj = reactive(data);
 
 effect(() => {
     for (const key in obj) {
-        console.log(obj[key]);
+       console.log(obj[key]);
     }
     const container = document.getElementById('app');
     if (container) {
