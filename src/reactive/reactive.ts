@@ -8,6 +8,11 @@ type Object = object & { [key: string | symbol]: any };
 const reactive = <T extends Object>(obj: T) => {
     return new Proxy(obj, {
         get(target, key, receiver) {
+            // 通过raw获取原始数据
+            if (key === 'raw') {
+                return target;
+            }
+
             track(target, key);
             return Reflect.get(target, key, receiver);
         },
@@ -18,10 +23,15 @@ const reactive = <T extends Object>(obj: T) => {
 
             const res = Reflect.set(target, key, newValue, receiver);
 
-            //值发生变化时才触发副作用函数
-            if (!equal(oldValue, newValue)) {
-                trigger(target, key, type);
+            // receiver是当前target的代理对象时，判断是否需要触发更新
+            if (receiver.raw === target) {
+                //值发生变化时才触发副作用函数
+                if (!equal(oldValue, newValue)) {
+                    trigger(target, key, type);
+                }
             }
+
+
 
             return res;
         },
