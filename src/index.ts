@@ -41,6 +41,10 @@ effect(() => {
     for (let key in obj) {
         console.log(obj[key]);
     }
+    const container = document.getElementById('app');
+    if (container) {
+        container.innerHTML = JSON.stringify(obj);
+    }
 })
 
 const createBtn = (onClick: Function, name: string) => {
