@@ -1,29 +1,27 @@
-import { equal, hasOwnProperty, isNull, isObject } from "@/util";
+import { equal, hasOwnProperty, isNull,isObject } from "@/util";
 import { ITERATE_KEY, track, trigger, TriggerType } from "./deps";
 
 
-type Object = object & { [key: string | symbol]: any };
-
-const reactive = <T extends Object>(obj: T) => {
+const reactive = <T extends Obj>(obj: T) => {
     return createReactive(obj)
 }
 
-export const shallowReactive = <T extends Object>(obj: T) => {
+export const shallowReactive = <T extends Obj>(obj: T) => {
     return createReactive(obj, true);
 }
 
-export const readonly = <T extends Object>(obj: T) => {
+export const readonly = <T extends Obj>(obj: T) => {
     return createReactive(obj, false, true);
 }
 
-export const shallowReadonly = <T extends Object>(obj: T) => {
+export const shallowReadonly = <T extends Obj>(obj: T) => {
     return createReactive(obj, true, true);
 }
 
 export default reactive;
 
 
-function createReactive<T extends Object>(obj: T, isShallow = false, isReadOnly = false): T {
+function createReactive<T extends Obj >(obj: T, isShallow = false, isReadOnly = false): T {
     return new Proxy(obj, {
         get(target, key, receiver) {
             // 通过raw获取原始数据

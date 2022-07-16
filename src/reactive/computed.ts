@@ -1,15 +1,15 @@
-import { track, trigger } from ".";
+import { track, trigger, TriggerType } from "./deps";
 import effect from "./effect";
 
-const computed = (getter: Function) => {
-    let value: any;
+const computed = <T extends Fn>(getter: T): { value: ReturnType<T>} => {
+    let value: ReturnType<T>;
     let dirty = true;
     const effectFn = effect(getter, {
         lazy: true,
         scheduler() {
             if (!dirty) {
                 dirty = true;
-                trigger(obj, 'value');
+                trigger(obj, 'value', TriggerType.SET);
             }
         }
     });

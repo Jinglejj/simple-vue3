@@ -38,7 +38,7 @@ const data: Record<Key, any> = {
 const obj = reactive(data);
 
 effect(() => {
-    for (let key in obj) {
+    for (const key in obj) {
         console.log(obj[key]);
     }
     const container = document.getElementById('app');
@@ -47,7 +47,7 @@ effect(() => {
     }
 })
 
-const createBtn = (onClick: Function, name: string) => {
+const createBtn = (onClick: Fn, name: string) => {
     const btn = document.createElement('button');
     btn.addEventListener('click', () => onClick());
     btn.innerText = name;

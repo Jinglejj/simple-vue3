@@ -2,8 +2,6 @@ import effect from '@/reactive/effect';
 import reactive, { readonly, shallowReactive } from '@/reactive';
 import { flushJob, jobQueue } from '@/queue';
 
-
-
 describe('reactive test', () => {
 
 
@@ -11,7 +9,7 @@ describe('reactive test', () => {
         const data = {
             count: 1,
         }
-        let obj = reactive(data);
+        const obj = reactive(data);
         const fn = jest.fn(() => console.log(obj.count));
         effect(fn);
         obj.count++;
@@ -22,7 +20,7 @@ describe('reactive test', () => {
         const data = {
             count: 1,
         }
-        let obj = reactive(data);
+        const obj = reactive(data);
         const fn = jest.fn(() => console.log(obj.count));
         effect(fn, {
             scheduler: (fn) => {
@@ -39,7 +37,7 @@ describe('reactive test', () => {
     })
 
     test('test lazy', () => {
-        const fn = jest.fn(() => { });
+        const fn = jest.fn(() => void 0);
         effect(fn, { lazy: true });
         expect(fn.mock.calls.length).toEqual(0);
     })

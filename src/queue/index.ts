@@ -1,7 +1,9 @@
-export const jobQueue = new Set<Function>();
+export const jobQueue = new Set<Fn>();
 
-let p = Promise.resolve();
+const p = Promise.resolve();
+
 let isFlushing = false;
+
 export const flushJob = () => {
     if (isFlushing) return;
     isFlushing = true;

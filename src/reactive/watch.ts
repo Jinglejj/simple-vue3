@@ -6,7 +6,7 @@ import effect from "./effect";
  * @param value 响应式数据 
  * @param seen  访问过属性的集合
  */
-const traverse = (value: any, seen = new Set()) => {
+const traverse = (value: Obj, seen = new Set<object>()) => {
     if (!isObject(value) || isNull(value) || seen.has(value)) {
         return;
     }
@@ -17,11 +17,11 @@ const traverse = (value: any, seen = new Set()) => {
     return value;
 }
 
-type Callback = (oldValue: any, newValue: any, onInvalidate?: (fn: Function) => void) => void
+type Callback = (oldValue: unknown, newValue: unknown, onInvalidate?: (fn: Fn) => void) => void;
 
-const watch = (source: any, cb: Callback, options?: WatchOptions) => {
+const watch = (source: Fn & unknown, cb: Callback, options?: WatchOptions) => {
     const { immdiate } = options ?? {};
-    let getter: Function;
+    let getter: Fn;
 
     if (isFunction(source)) {
         getter = source;
@@ -29,11 +29,11 @@ const watch = (source: any, cb: Callback, options?: WatchOptions) => {
         getter = () => traverse(source);
     }
 
-    let oldValue: any, newValue: any;
-    let cleanup: Function;
+    let oldValue: unknown, newValue: unknown;
+    let cleanup: Fn;
 
 
-    function onInvalidate(fn: Function) {
+    function onInvalidate(fn: Fn) {
         cleanup = fn;
     }
 

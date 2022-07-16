@@ -9,7 +9,7 @@ const bucket: Bucket = new WeakMap();
 
 export const ITERATE_KEY = Symbol();
 
-export const track = (target: Record<Key, any>, key: Key) => {
+export const track = (target: Obj, key: Key) => {
     if (!activeEffect) {
         return target[key];
     }
@@ -25,7 +25,7 @@ export const track = (target: Record<Key, any>, key: Key) => {
     activeEffect.deps.push(deps);
 }
 
-export const trigger = (target: Record<Key, any>, key: Key, type: TriggerType) => {
+export const trigger = (target: Obj, key: Key, type: TriggerType) => {
     const depsMap = bucket.get(target);
     if (!depsMap) return true;
     const effects = depsMap.get(key);

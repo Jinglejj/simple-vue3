@@ -1,6 +1,6 @@
 function mountElement(vnode: VNode, container: HTMLElement) {
     const el = document.createElement(vnode.tag as string);
-    for (let key in vnode.props) {
+    for (const key in vnode.props) {
         if (/^on/.test(key)) {
             const eventName = key.substring(2).toLocaleLowerCase();
             el.addEventListener(eventName, vnode.props[key]);

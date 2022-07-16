@@ -1,8 +1,8 @@
 type EffectOptions = {
-    scheduler?: (fn: Function) => void;
+    scheduler?: (fn: Fn) => void;
     lazy?: boolean;
 }
-type Effect = Function & { deps: Set<Function>[], options: EffectOptions };
+type Effect = Fn & { deps: Set<Effect>[], options: EffectOptions };
 
 const cleanup = (effectFn: Effect) => {
     for (let i = 0; i < effectFn.deps.length; i++) {
@@ -12,12 +12,11 @@ const cleanup = (effectFn: Effect) => {
     effectFn.deps.length = 0;
 }
 
-
 export let activeEffect: Effect;
 
-let effectStack: Effect[] = [];
+const effectStack: Effect[] = [];
 
-const effect = (fn: Function, options: EffectOptions = {}) => {
+const effect = (fn: Fn, options: EffectOptions = {}) => {
     const effectFn: Effect = () => {
         cleanup(effectFn);
         activeEffect = effectFn;
