@@ -1,66 +1,70 @@
-import { activeEffect } from "./effect";
-import reactive, { shallowReactive } from './reactive';
-
-export enum TriggerType {
-    SET = 'SET',
-    ADD = 'ADD',
-    DELETE = 'DELETE'
-}
-const bucket: Bucket = new WeakMap();
-
-export const ITERATE_KEY = Symbol();
+import { equal, hasOwnProperty, isNull, isObject } from "@/util";
+import { ITERATE_KEY, track, trigger, TriggerType } from "./deps";
 
 
-export const track = (target: Record<Key, any>, key: Key) => {
-    if (!activeEffect) {
-        return target[key];
-    }
-    let depsMap = bucket.get(target);
-    if (!depsMap) {
-        bucket.set(target, depsMap = new Map());
-    }
-    let deps = depsMap.get(key);
-    if (!deps) {
-        depsMap.set(key, deps = new Set());
-    }
-    deps.add(activeEffect);
-    activeEffect.deps.push(deps);
-}
+type Object = object & { [key: string | symbol]: any };
 
-export const trigger = (target: Record<Key, any>, key: Key, type: TriggerType) => {
-    const depsMap = bucket.get(target);
-    if (!depsMap) return true;
-    const effects = depsMap.get(key);
 
-    // TODO:
-    const effectToRun = new Set<Effect>();
-    effects?.forEach(effectFn => {
-        if (effectFn !== activeEffect) {
-            effectToRun.add(effectFn);
+const createReactive = <T extends Object>(obj: T, isShallow = false): T => {
+    return new Proxy(obj, {
+        get(target, key, receiver) {
+            // 通过raw获取原始数据
+            if (key === 'raw') {
+                return target;
+            }
+            track(target, key);
+            const res = Reflect.get(target, key, receiver);
+
+            // 浅响应
+            if (isShallow) {
+                return res;
+            }
+
+            // 判断属性是否为对象，如果为对象的话递归将该属性设置为响应式
+            if (!isNull(res) && isObject(res)) {
+                return createReactive(res);
+            }
+
+            return res;
+        },
+        set(target, key, newValue, receiver) {
+            const oldValue = target[key];
+            //判断是新增属性还是修改属性值
+            const type = hasOwnProperty(target, key) ? TriggerType.SET : TriggerType.ADD;
+
+            const res = Reflect.set(target, key, newValue, receiver);
+
+            // receiver是当前target的代理对象时，判断是否需要触发更新
+            if (receiver.raw === target) {
+                //值发生变化时才触发副作用函数
+                if (!equal(oldValue, newValue)) {
+                    trigger(target, key, type);
+                }
+            }
+            return res;
+        },
+        // 拦截 for...in
+        ownKeys(target) {
+            track(target, ITERATE_KEY);
+            return Reflect.ownKeys(target);
+        },
+        deleteProperty(target, key) {
+            const hasKey = hasOwnProperty(target, key);
+            const res = Reflect.deleteProperty(target, key);
+            if (res && hasKey) {
+                trigger(target, key, TriggerType.DELETE);
+            }
+            return res;
         }
     });
+}
 
-    console.log(type, key)
-    if (type === TriggerType.ADD || type === TriggerType.DELETE) {
-        // 添加属性时，执行与 ITERATE_KEY 相关联的副作用函数。
-        const iterateEffect = depsMap.get(ITERATE_KEY);
-        iterateEffect?.forEach(effectFn => {
-            if (effectFn !== activeEffect) {
-                effectToRun.add(effectFn);
-            }
-        })
-    }
+const reactive = <T extends Object>(obj: T) => {
+    return createReactive(obj)
+}
 
-
-    effectToRun.forEach(effectFn => {
-        if (effectFn.options?.scheduler) {
-            effectFn.options.scheduler(effectFn);
-        } else {
-            effectFn();
-        }
-    })
+export const shallowReactive = <T extends Object>(obj: T) => {
+    return createReactive(obj, true);
 }
 
 export default reactive;
-
-export { shallowReactive } from './reactive';
